@@ -26,8 +26,13 @@ public class BusinessParamUtil {
         for (StatusMetric statusMetric : statusMetrics) {
             Model model = statusMetric.getModel();
             String flag = model.getMatcher().get(ModelConstant.BUSINESS_PARAMS);
+            if (StringUtils.isBlank(flag)) {
+                continue;
+            }
             List<BusinessParam> businessParams = parseFromJsonStr(flag);
-            paramsMap.put(ModelUtil.getIdentifier(model), businessParams);
+            if (businessParams != null && !businessParams.isEmpty()) {
+                paramsMap.put(ModelUtil.getIdentifier(model), businessParams);
+            }
         }
         return paramsMap;
     }

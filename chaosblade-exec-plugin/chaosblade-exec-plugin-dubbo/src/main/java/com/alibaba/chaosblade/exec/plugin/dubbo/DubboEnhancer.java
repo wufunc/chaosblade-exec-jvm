@@ -112,9 +112,11 @@ public abstract class DubboEnhancer extends BeforeEnhancer {
         EnhancerModel enhancerModel = new EnhancerModel(classLoader, matcherModel);
         enhancerModel.setTimeoutExecutor(createTimeoutExecutor(classLoader, timeout, className));
         try {
-            Map<String, Map<String, String>> businessParams = getBusinessParams(invocation);
-            if (businessParams != null) {
-                enhancerModel.addCustomMatcher(ModelConstant.BUSINESS_PARAMS, businessParams, BusinessParamMatcher.getInstance());
+            if (hasBParams()) {
+                Map<String, Map<String, String>> businessParams = getBusinessParams(invocation);
+                if (businessParams != null) {
+                    enhancerModel.addCustomMatcher(ModelConstant.BUSINESS_PARAMS, businessParams, BusinessParamMatcher.getInstance());
+                }
             }
         } catch (Exception e) {
             LOGGER.warn("Getting business params occurs exception,return null", e);
@@ -213,4 +215,7 @@ public abstract class DubboEnhancer extends BeforeEnhancer {
      */
     protected abstract Map<String, Map<String, String>> getBusinessParams(Object invocation) throws Exception;
 
+    private boolean hasBParams() {
+        return FlagUtil.hasFlag(ModelConstant.HTTP_TARGET, ModelConstant.BUSINESS_PARAMS);
+    }
 }
