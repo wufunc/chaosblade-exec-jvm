@@ -164,20 +164,39 @@ public class Injector {
                         continue;
                     }
                 }
+                // uri match
+                if (model.getTarget().equalsIgnoreCase(ModelConstant.HTTP_TARGET)) {
+                    String entryValue = (String) entry.getValue();
+                    if (entry.getKey().equalsIgnoreCase(ModelConstant.HTTP_URL_MATCHER_NAME) && entryValue.contains("*")) {
+                        String modeluripattern = entryValue.replaceAll("\\*", ".*");
+                        if (Pattern.matches(modeluripattern, String.valueOf(value))) {
+                            LOGGER.debug("url pattern {} match with request uri {}", entry.getValue(), value);
+                            continue;
+                        }
+                        LOGGER.debug("url pattern {} not match with request uri {}", entry.getValue(), value);
+                    } else {
+                        if (String.valueOf(value).equalsIgnoreCase((String) entry.getValue())) {
+                            return false;
+                        }
+                    }
+                }
                 return false;
             }
-            // business param match
-            if (keyName.equals(ModelConstant.BUSINESS_PARAMS)) {
-                Map<String, Map<String, String>> expMap = (Map<String, Map<String, String>>) value;
-                value = expMap.get(ModelUtil.getIdentifier(model));
-            }
             // custom match
-            if (keyName.endsWith(ModelConstant.REGEX_PATTERN_FLAG) ? customMatcher.regexMatch(String.valueOf(entry.getValue()), value) : customMatcher.match(String.valueOf(entry.getValue()), value)) {
-                continue;
-            }
-            LOGGER.debug("match key:{} fail", keyName);
             return false;
         }
-        return true;
+        // business param match
+        if (keyName.equals(ModelConstant.BUSINESS_PARAMS)) {
+            Map<String, Map<String, String>> expMap = (Map<String, Map<String, String>>) value;
+            value = expMap.get(ModelUtil.getIdentifier(model));
+        }
+        // custom match
+        if (keyName.endsWith(ModelConstant.REGEX_PATTERN_FLAG) ? customMatcher.regexMatch(String.valueOf(entry.getValue()), value) : customMatcher.match(String.valueOf(entry.getValue()), value)) {
+            continue;
+        }
+        LOGGER.debug("match key:{} fail", keyName);
+        return false;
     }
+        return true;
+}
 }
