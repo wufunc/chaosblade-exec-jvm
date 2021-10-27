@@ -182,21 +182,18 @@ public class Injector {
                 }
                 return false;
             }
+            // business param match
+            if (keyName.equals(ModelConstant.BUSINESS_PARAMS)) {
+                Map<String, Map<String, String>> expMap = (Map<String, Map<String, String>>) value;
+                value = expMap.get(ModelUtil.getIdentifier(model));
+            }
             // custom match
+            if (keyName.endsWith(ModelConstant.REGEX_PATTERN_FLAG) ? customMatcher.regexMatch(String.valueOf(entry.getValue()), value) : customMatcher.match(String.valueOf(entry.getValue()), value)) {
+                continue;
+            }
+            LOGGER.debug("match key:{} fail", keyName);
             return false;
         }
-        // business param match
-        if (keyName.equals(ModelConstant.BUSINESS_PARAMS)) {
-            Map<String, Map<String, String>> expMap = (Map<String, Map<String, String>>) value;
-            value = expMap.get(ModelUtil.getIdentifier(model));
-        }
-        // custom match
-        if (keyName.endsWith(ModelConstant.REGEX_PATTERN_FLAG) ? customMatcher.regexMatch(String.valueOf(entry.getValue()), value) : customMatcher.match(String.valueOf(entry.getValue()), value)) {
-            continue;
-        }
-        LOGGER.debug("match key:{} fail", keyName);
-        return false;
-    }
         return true;
-}
+    }
 }
