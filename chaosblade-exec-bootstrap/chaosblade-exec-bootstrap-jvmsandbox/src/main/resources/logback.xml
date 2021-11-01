@@ -21,7 +21,7 @@
         <appender class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>${user.home}/logs/chaosblade/chaosblade.log</file>
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <FileNamePattern>${user.home}/logs/chaosblade/chaosblade.log.%d{yyyy-MM-dd}</FileNamePattern>
+                <FileNamePattern>${log.dir}/chaosblade.log.%d{yyyy-MM-dd}</FileNamePattern>
                 <MaxHistory>30</MaxHistory>
             </rollingPolicy>
             <encoder>
