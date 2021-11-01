@@ -16,10 +16,10 @@
   -->
 
 <configuration scan="false">
-
+    <property name="log.dir" value="${catalina.base}/logs"/>
     <root level="INFO">
         <appender class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <file>${user.home}/logs/chaosblade/chaosblade.log</file>
+            <file>${log.dir}/chaosblade.log</file>
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
                 <FileNamePattern>${log.dir}/chaosblade.log.%d{yyyy-MM-dd}</FileNamePattern>
                 <MaxHistory>30</MaxHistory>
