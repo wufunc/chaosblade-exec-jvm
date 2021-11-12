@@ -63,9 +63,11 @@ public abstract class HttpEnhancer extends BeforeEnhancer {
         }
         enhancerModel.setTimeoutExecutor(createTimeoutExecutor(classLoader, timeout, className));
         try {
-            Map<String, Map<String, String>> businessParams = getBusinessParams(className, object, method, methodArguments);
-            if (businessParams != null) {
-                enhancerModel.addCustomMatcher(ModelConstant.BUSINESS_PARAMS, businessParams, BusinessParamMatcher.getInstance());
+            if(hasBParams()){
+                Map<String, Map<String, String>> businessParams = getBusinessParams(className, object, method, methodArguments);
+                if (businessParams != null) {
+                    enhancerModel.addCustomMatcher(ModelConstant.BUSINESS_PARAMS, businessParams, BusinessParamMatcher.getInstance());
+                }
             }
         } catch (Exception e) {
             LOGGER.warn("Getting business params  occurs exception", e);
@@ -124,5 +126,9 @@ public abstract class HttpEnhancer extends BeforeEnhancer {
      * @return
      */
     protected abstract String getUrl(Object instance, Object[] object) throws Exception;
+
+    private boolean hasBParams() {
+        return FlagUtil.hasFlag(ModelConstant.HTTP_TARGET, ModelConstant.BUSINESS_PARAMS);
+    }
 
 }

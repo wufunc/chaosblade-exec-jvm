@@ -216,6 +216,6 @@ public abstract class DubboEnhancer extends BeforeEnhancer {
     protected abstract Map<String, Map<String, String>> getBusinessParams(Object invocation) throws Exception;
 
     private boolean hasBParams() {
-        return FlagUtil.hasFlag(ModelConstant.HTTP_TARGET, ModelConstant.BUSINESS_PARAMS);
+        return FlagUtil.hasFlag(DubboConstant.TARGET_NAME, ModelConstant.BUSINESS_PARAMS);
     }
 }
