@@ -176,10 +176,12 @@ public class Injector {
                         LOGGER.debug("url pattern {} not match with request uri {}", entry.getValue(), value);
                     } else {
                         if (String.valueOf(value).equalsIgnoreCase((String) entry.getValue())) {
+                            LOGGER.debug("match key:{} fail,origin value:{},commond value:{}", keyName,value,entry.getValue());
                             return false;
                         }
                     }
                 }
+                LOGGER.debug("match key:{} fail", keyName);
                 return false;
             }
             // business param match
