@@ -1,6 +1,7 @@
 package com.alibaba.chaosblade.exec.plugin.http.httpclient4;
 
 import com.alibaba.chaosblade.exec.common.aop.EnhancerModel;
+import com.alibaba.chaosblade.exec.common.constant.ModelConstant;
 import com.alibaba.chaosblade.exec.common.util.BusinessParamUtil;
 import com.alibaba.chaosblade.exec.common.util.ReflectUtil;
 import com.alibaba.chaosblade.exec.plugin.http.HttpConstant;
@@ -44,7 +45,7 @@ public class HttpClient4Enhancer extends HttpEnhancer {
 
     @Override
     protected Map<String, Map<String, String>> getBusinessParams(String className, Object instance, Method method, final Object[] methodArguments) throws Exception {
-        return BusinessParamUtil.getAndParse(HTTPCLIENT4_TARGET_NAME, new BusinessDataGetter() {
+        return BusinessParamUtil.getAndParse(ModelConstant.HTTP_TARGET, new BusinessDataGetter() {
             @Override
             public String get(String key) throws Exception {
                 Object request = methodArguments[1];

@@ -2,6 +2,7 @@ package com.alibaba.chaosblade.exec.plugin.http.resttemplate;
 
 import static com.alibaba.chaosblade.exec.plugin.http.HttpConstant.DEFAULT_TIMEOUT;
 
+import com.alibaba.chaosblade.exec.common.constant.ModelConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,7 @@ public class RestTemplateEnhancer extends HttpEnhancer {
 
     @Override
     protected Map<String, Map<String, String>> getBusinessParams(String className, Object instance, Method method, final Object[] methodArguments) throws Exception {
-        return BusinessParamUtil.getAndParse(HttpConstant.REST_TARGET_NAME, new BusinessDataGetter() {
+        return BusinessParamUtil.getAndParse(ModelConstant.HTTP_TARGET, new BusinessDataGetter() {
             @Override
             public String get(String key) throws Exception {
                 Object requestCallback = methodArguments[2];

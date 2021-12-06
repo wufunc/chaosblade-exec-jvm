@@ -63,9 +63,9 @@ public abstract class HttpEnhancer extends BeforeEnhancer {
         }
         enhancerModel.setTimeoutExecutor(createTimeoutExecutor(classLoader, timeout, className));
         try {
-            if(hasBParams()){
+            if (hasBParams()) {
                 Map<String, Map<String, String>> businessParams = getBusinessParams(className, object, method, methodArguments);
-                if (businessParams != null) {
+                if (businessParams != null && businessParams.size() > 0) {
                     enhancerModel.addCustomMatcher(ModelConstant.BUSINESS_PARAMS, businessParams, BusinessParamMatcher.getInstance());
                 }
             }

@@ -114,7 +114,7 @@ public abstract class DubboEnhancer extends BeforeEnhancer {
         try {
             if (hasBParams()) {
                 Map<String, Map<String, String>> businessParams = getBusinessParams(invocation);
-                if (businessParams != null) {
+                if (businessParams != null && businessParams.size() > 0) {
                     enhancerModel.addCustomMatcher(ModelConstant.BUSINESS_PARAMS, businessParams, BusinessParamMatcher.getInstance());
                 }
             }

@@ -71,7 +71,7 @@ public class HttpProtocolEnhancer extends HttpEnhancer {
         } else {
             content = ThreadLocalContext.getInstance().get();
         }
-        content.settValue(BusinessParamUtil.getAndParse(HttpConstant.ASYNC_HTTP_TARGET_NAME, new BusinessDataGetter() {
+        content.settValue(BusinessParamUtil.getAndParse(ModelConstant.HTTP_TARGET, new BusinessDataGetter() {
             @Override
             public String get(String key) throws Exception {
                 List<String> values = (List<String>) ReflectUtil.invokeMethod(headers, "get", new Object[]{key}, false);
