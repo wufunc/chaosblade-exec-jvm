@@ -26,7 +26,16 @@ public class AsyncHttpClientEnhancerWrapper extends BeforeEnhancer {
     @Override
     public EnhancerModel doBeforeAdvice(ClassLoader classLoader, String className, Object object, Method method,
                                         Object[] methodArguments) throws Exception {
+        Class[] interfaces = object.getClass().getInterfaces();
         Enhancer enhancer = container.get(className, method.getName());
+        if (enhancer == null && interfaces != null) {
+            for (Class inter : interfaces) {
+                enhancer = container.get(inter.toString(), method.getName());
+                if (enhancer != null) {
+                    break;
+                }
+            }
+        }
         if (enhancer != null) {
             if (enhancer instanceof BeforeEnhancer) {
                 BeforeEnhancer beforeEnhancer = (BeforeEnhancer) enhancer;

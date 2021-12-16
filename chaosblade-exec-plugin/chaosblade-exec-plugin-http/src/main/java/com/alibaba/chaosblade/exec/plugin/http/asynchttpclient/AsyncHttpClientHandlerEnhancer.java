@@ -23,7 +23,7 @@ import com.alibaba.chaosblade.exec.plugin.http.model.CallPointMatcher;
 /**
  * @author shizhi.zhu@qunar.com
  */
-@InternalPointCut(className = "com.ning.http.client.AsyncCompletionHandler", methodName = "onStatusReceived")
+@InternalPointCut(className = "com.ning.http.client.AsyncHandler", methodName = "onStatusReceived")
 public class AsyncHttpClientHandlerEnhancer extends HttpEnhancer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AsyncHttpClientHandlerEnhancer.class);
