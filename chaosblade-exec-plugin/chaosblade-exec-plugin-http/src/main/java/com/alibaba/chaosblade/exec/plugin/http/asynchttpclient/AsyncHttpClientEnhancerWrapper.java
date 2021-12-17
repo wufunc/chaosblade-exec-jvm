@@ -30,7 +30,7 @@ public class AsyncHttpClientEnhancerWrapper extends BeforeEnhancer {
         Enhancer enhancer = container.get(className, method.getName());
         if (enhancer == null && interfaces != null) {
             for (Class inter : interfaces) {
-                enhancer = container.get(inter.toString(), method.getName());
+                enhancer = container.get(inter.getName(), method.getName());
                 if (enhancer != null) {
                     break;
                 }

@@ -170,15 +170,10 @@ public class Injector {
                     if (entry.getKey().equalsIgnoreCase(ModelConstant.HTTP_URL_MATCHER_NAME) && entryValue.contains("*")) {
                         String modeluripattern = entryValue.replaceAll("\\*", ".*");
                         if (Pattern.matches(modeluripattern, String.valueOf(value))) {
-                            LOGGER.debug("url pattern {} match with request uri {}", entry.getValue(), value);
+                            LOGGER.debug("uri pattern {} match with request uri {}", entry.getValue(), value);
                             continue;
                         }
-                        LOGGER.debug("url pattern {} not match with request uri {}", entry.getValue(), value);
-                    } else {
-                        if (String.valueOf(value).equalsIgnoreCase((String) entry.getValue())) {
-                            LOGGER.debug("match key:{} fail,origin value:{},commond value:{}", keyName,value,entry.getValue());
-                            return false;
-                        }
+                        LOGGER.debug("uri pattern {} not match with request uri {}", entry.getValue(), value);
                     }
                 }
                 LOGGER.debug("match key:{} fail", keyName);
