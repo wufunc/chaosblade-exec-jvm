@@ -1,6 +1,7 @@
 package com.alibaba.chaosblade.exec.plugin.http.asynchttpclient;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -51,12 +52,13 @@ public class AsyncHttpClientEnhancerWrapper extends BeforeEnhancer {
 
     private List<Class> getAllInterfacesByClass(Class<?> aClass) {
         Class[] interfaces = aClass.getInterfaces();
-        List<Class> interfaceList = Arrays.asList(interfaces);
+        List<Class> allInterfaces = new ArrayList<Class>();
+        allInterfaces.addAll(Arrays.asList(interfaces));
         Class superClass = aClass.getSuperclass();
         while (superClass != null) {
-            interfaceList.addAll(Arrays.asList(superClass.getInterfaces()));
+            allInterfaces.addAll(Arrays.asList(superClass.getInterfaces()));
             superClass = superClass.getSuperclass();
         }
-        return interfaceList;
+        return allInterfaces;
     }
 }
