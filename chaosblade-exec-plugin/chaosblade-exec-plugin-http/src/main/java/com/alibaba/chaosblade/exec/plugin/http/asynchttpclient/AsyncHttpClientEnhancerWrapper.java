@@ -1,6 +1,8 @@
 package com.alibaba.chaosblade.exec.plugin.http.asynchttpclient;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,9 +28,10 @@ public class AsyncHttpClientEnhancerWrapper extends BeforeEnhancer {
     @Override
     public EnhancerModel doBeforeAdvice(ClassLoader classLoader, String className, Object object, Method method,
                                         Object[] methodArguments) throws Exception {
-        Class[] interfaces = object.getClass().getInterfaces();
+
         Enhancer enhancer = container.get(className, method.getName());
-        if (enhancer == null && interfaces != null) {
+        List<Class> interfaces = getAllInterfacesByClass(object.getClass());
+        if (enhancer == null) {
             for (Class inter : interfaces) {
                 enhancer = container.get(inter.getName(), method.getName());
                 if (enhancer != null) {
@@ -44,5 +47,16 @@ public class AsyncHttpClientEnhancerWrapper extends BeforeEnhancer {
         }
         LOGGER.debug("Can't find enhancer for:{}#{}", className, method.getName());
         return null;
+    }
+
+    private List<Class> getAllInterfacesByClass(Class<?> aClass) {
+        Class[] interfaces = aClass.getInterfaces();
+        List<Class> interfaceList = Arrays.asList(interfaces);
+        Class superClass = aClass.getSuperclass();
+        while (superClass != null) {
+            interfaceList.addAll(Arrays.asList(superClass.getInterfaces()));
+            superClass = superClass.getSuperclass();
+        }
+        return interfaceList;
     }
 }
