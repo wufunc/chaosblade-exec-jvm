@@ -1,8 +1,12 @@
 package com.alibaba.chaosblade.exec.plugin.http.asynchttpclient;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.alibaba.chaosblade.exec.common.constant.ModelConstant;
+import com.alibaba.chaosblade.exec.common.util.BusinessParamUtil;
+import com.alibaba.chaosblade.exec.spi.BusinessDataGetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,20 +22,20 @@ import com.alibaba.chaosblade.exec.plugin.http.enhancer.InternalPointCut;
  * @author shizhi.zhu@qunar.com
  */
 @InternalPointCut(className = "com.ning.http.client.providers.netty.request.NettyRequestSender",
-    methodName = "newNettyRequestAndResponseFuture")
+        methodName = "newNettyRequestAndResponseFuture")
 public class NettyRequestSenderEnhancer extends BeforeEnhancer {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyRequestSenderEnhancer.class);
     private static final AtomicLong ID_GENERATOR = new AtomicLong();
 
     @Override
     public EnhancerModel doBeforeAdvice(ClassLoader classLoader, String className, Object object, Method method,
-        Object[] methodArguments) throws Exception {
+                                        Object[] methodArguments) throws Exception {
         if (!shouldAddCallPoint()) {
             return null;
         }
         if (methodArguments.length < 2) {
             LOGGER.warn("argument's length less than 2, can't find Request, className:{}, methodName:{}", className,
-                method.getName());
+                    method.getName());
             return null;
         }
 
@@ -40,11 +44,23 @@ public class NettyRequestSenderEnhancer extends BeforeEnhancer {
             LOGGER.warn("argument is not RequestImpl, className:{}, methodName:{}", className, method.getName());
             return null;
         }
-        Object headers = ReflectUtil.invokeMethod(request, "getHeaders");
+        final Object headers = ReflectUtil.invokeMethod(request, "getHeaders");
         String id = String.valueOf(ID_GENERATOR.incrementAndGet());
-        ReflectUtil.invokeMethod(headers, "add", new String[] {HttpConstant.REQUEST_ID, id});
+        ReflectUtil.invokeMethod(headers, "add", new String[]{HttpConstant.REQUEST_ID_STACK, id});
         StackTraceElement[] stackTrace = new NullPointerException().getStackTrace();
         GlobalContext.getDefaultInstance().put(id, stackTrace);
+        id = String.valueOf(ID_GENERATOR.incrementAndGet());
+        ReflectUtil.invokeMethod(headers, "add", new String[]{HttpConstant.REQUEST_ID_BUSINESSPARAM, id});
+        GlobalContext.getDefaultInstance().put(id, BusinessParamUtil.getAndParse(ModelConstant.HTTP_TARGET, new BusinessDataGetter() {
+            @Override
+            public String get(String key) throws Exception {
+                List<String> values = (List<String>) ReflectUtil.invokeMethod(headers, "get", new Object[]{key}, false);
+                if (values != null && !values.isEmpty()) {
+                    return values.get(0);
+                }
+                return null;
+            }
+        }));
         return null;
     }
 

@@ -11,7 +11,6 @@ import com.alibaba.chaosblade.exec.spi.BusinessDataGetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.alibaba.chaosblade.exec.common.aop.BeforeEnhancer;
 import com.alibaba.chaosblade.exec.common.aop.EnhancerModel;
 import com.alibaba.chaosblade.exec.common.context.GlobalContext;
 import com.alibaba.chaosblade.exec.common.context.ThreadLocalContext;
@@ -30,7 +29,7 @@ public class HttpProtocolEnhancer extends HttpEnhancer {
     @Override
     public EnhancerModel doBeforeAdvice(ClassLoader classLoader, String className, Object object, Method method,
                                         Object[] methodArguments) throws Exception {
-        super.doBeforeAdvice(classLoader,className,object,method,methodArguments);
+        super.doBeforeAdvice(classLoader, className, object, method, methodArguments);
         if (!shouldAddCallPoint()) {
             return null;
         }
@@ -38,7 +37,7 @@ public class HttpProtocolEnhancer extends HttpEnhancer {
         if (headers == null) {
             return null;
         }
-        List<String> values = (List<String>) ReflectUtil.invokeMethod(headers, "get", new String[]{HttpConstant.REQUEST_ID});
+        List<String> values = (List<String>) ReflectUtil.invokeMethod(headers, "get", new String[]{HttpConstant.REQUEST_ID_STACK});
         if (values != null && !values.isEmpty()) {
             String id = values.get(0);
             StackTraceElement[] stackTrace = (StackTraceElement[]) GlobalContext.getDefaultInstance().remove(id);
@@ -65,23 +64,21 @@ public class HttpProtocolEnhancer extends HttpEnhancer {
         if (headers == null) {
             return null;
         }
-        ThreadLocalContext.Content content;
-        if (ThreadLocalContext.getInstance().get() == null) {
-            content = new ThreadLocalContext.Content();
-        } else {
-            content = ThreadLocalContext.getInstance().get();
-        }
-        content.settValue(BusinessParamUtil.getAndParse(ModelConstant.HTTP_TARGET, new BusinessDataGetter() {
-            @Override
-            public String get(String key) throws Exception {
-                List<String> values = (List<String>) ReflectUtil.invokeMethod(headers, "get", new Object[]{key}, false);
-                if (values != null && !values.isEmpty()) {
-                    return values.get(0);
-                }
-                return null;
+        List<String> values = (List<String>) ReflectUtil.invokeMethod(headers, "get", new String[]{HttpConstant.REQUEST_ID_BUSINESSPARAM});
+        if (values != null && !values.isEmpty()) {
+            String id = values.get(0);
+            Map<String, Map<String, String>> busiParam = (Map<String, Map<String, String>>) GlobalContext.getDefaultInstance().remove(id);
+            ThreadLocalContext.Content content;
+            if (ThreadLocalContext.getInstance().get() == null) {
+                content = new ThreadLocalContext.Content();
+            } else {
+                content = ThreadLocalContext.getInstance().get();
             }
-        }));
-        ThreadLocalContext.getInstance().set(content);
+            content.settValue(busiParam);
+            ThreadLocalContext.getInstance().set(content);
+        } else {
+            LOGGER.warn("header not found, className:{}, methodName:{}", className, method.getName());
+        }
         return null;
     }
 

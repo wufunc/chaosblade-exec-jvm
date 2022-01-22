@@ -24,7 +24,9 @@ public class HttpConstant {
 
     public static final int DEFAULT_TIMEOUT = 60000;
 
-    public static final String REQUEST_ID = "c_request_id";
+    public static final String REQUEST_ID_STACK = "c_request_id_stack";
+    public static final String REQUEST_ID_BUSINESSPARAM = "c_request_id_busiParam";
+
 
     public static final String REST_TARGET_NAME = "rest";
     public static final String HTTPCLIENT3_TARGET_NAME = "httpclient3";
