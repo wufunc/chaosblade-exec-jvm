@@ -30,7 +30,7 @@ public class NettyRequestSenderEnhancer extends BeforeEnhancer {
     @Override
     public EnhancerModel doBeforeAdvice(ClassLoader classLoader, String className, Object object, Method method,
                                         Object[] methodArguments) throws Exception {
-        if (!shouldAddCallPoint()) {
+        if (!shouldAddCallPoint() || !shouldAddBusinessParam()) {
             return null;
         }
         if (methodArguments.length < 2) {
@@ -45,26 +45,36 @@ public class NettyRequestSenderEnhancer extends BeforeEnhancer {
             return null;
         }
         final Object headers = ReflectUtil.invokeMethod(request, "getHeaders");
-        String id = String.valueOf(ID_GENERATOR.incrementAndGet());
-        ReflectUtil.invokeMethod(headers, "add", new String[]{HttpConstant.REQUEST_ID_STACK, id});
-        StackTraceElement[] stackTrace = new NullPointerException().getStackTrace();
-        GlobalContext.getDefaultInstance().put(id, stackTrace);
-        id = String.valueOf(ID_GENERATOR.incrementAndGet());
-        ReflectUtil.invokeMethod(headers, "add", new String[]{HttpConstant.REQUEST_ID_BUSINESSPARAM, id});
-        GlobalContext.getDefaultInstance().put(id, BusinessParamUtil.getAndParse(ModelConstant.HTTP_TARGET, new BusinessDataGetter() {
-            @Override
-            public String get(String key) throws Exception {
-                List<String> values = (List<String>) ReflectUtil.invokeMethod(headers, "get", new Object[]{key}, false);
-                if (values != null && !values.isEmpty()) {
-                    return values.get(0);
+        String id;
+        if (shouldAddCallPoint()) {
+            id = String.valueOf(ID_GENERATOR.incrementAndGet());
+            ReflectUtil.invokeMethod(headers, "add", new String[]{HttpConstant.REQUEST_ID_STACK, id});
+            StackTraceElement[] stackTrace = new NullPointerException().getStackTrace();
+            GlobalContext.getDefaultInstance().put(id, stackTrace);
+        }
+        if (shouldAddBusinessParam()) {
+            id = String.valueOf(ID_GENERATOR.incrementAndGet());
+            ReflectUtil.invokeMethod(headers, "add", new String[]{HttpConstant.REQUEST_ID_BUSINESSPARAM, id});
+            GlobalContext.getDefaultInstance().put(id, BusinessParamUtil.getAndParse(ModelConstant.HTTP_TARGET, new BusinessDataGetter() {
+                @Override
+                public String get(String key) throws Exception {
+                    List<String> values = (List<String>) ReflectUtil.invokeMethod(headers, "get", new Object[]{key}, false);
+                    if (values != null && !values.isEmpty()) {
+                        return values.get(0);
+                    }
+                    return null;
                 }
-                return null;
-            }
-        }));
+            }));
+        }
+
         return null;
     }
 
     protected boolean shouldAddCallPoint() {
         return FlagUtil.hasFlag("http", HttpConstant.CALL_POINT_KEY);
+    }
+
+    protected boolean shouldAddBusinessParam() {
+        return FlagUtil.hasFlag("http", ModelConstant.BUSINESS_PARAMS);
     }
 }
