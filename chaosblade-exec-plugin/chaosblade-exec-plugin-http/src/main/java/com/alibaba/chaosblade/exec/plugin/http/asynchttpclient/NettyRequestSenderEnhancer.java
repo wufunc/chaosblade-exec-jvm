@@ -30,7 +30,7 @@ public class NettyRequestSenderEnhancer extends BeforeEnhancer {
     @Override
     public EnhancerModel doBeforeAdvice(ClassLoader classLoader, String className, Object object, Method method,
                                         Object[] methodArguments) throws Exception {
-        if (!shouldAddCallPoint() || !shouldAddBusinessParam()) {
+        if (!shouldAddCallPoint() && !shouldAddBusinessParam()) {
             return null;
         }
         if (methodArguments.length < 2) {
