@@ -119,7 +119,12 @@ public abstract class DubboEnhancer extends BeforeEnhancer {
                 }
             }
         } catch (Exception e) {
-            LOGGER.warn("Getting business params occurs exception,return null", e);
+            LOGGER.warn("Getting business params occurs exception", e);
+        }
+        try {
+            enhancerModel.setTraceId(TraceIdUtil.getTraceId());
+        } catch (Exception e) {
+            LOGGER.warn("Getting traceId occurs exception", e);
         }
         postDoBeforeAdvice(enhancerModel);
         return enhancerModel;

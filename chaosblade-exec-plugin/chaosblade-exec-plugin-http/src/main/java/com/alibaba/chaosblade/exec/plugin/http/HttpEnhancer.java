@@ -22,6 +22,8 @@ import java.util.Map;
 
 import com.alibaba.chaosblade.exec.common.aop.matcher.busi.BusinessParamMatcher;
 import com.alibaba.chaosblade.exec.common.constant.ModelConstant;
+import com.alibaba.chaosblade.exec.common.util.BusinessParamUtil;
+import com.alibaba.chaosblade.exec.common.util.TraceIdUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +74,16 @@ public abstract class HttpEnhancer extends BeforeEnhancer {
         } catch (Exception e) {
             LOGGER.warn("Getting business params  occurs exception", e);
         }
+        try {
+            enhancerModel.setTraceId(getTraceId(className, object, method, methodArguments));
+        } catch (Exception e) {
+            LOGGER.warn("Getting traceId occurs exception", e);
+        }
         return enhancerModel;
+    }
+
+    protected String getTraceId(String className, Object object, Method method, Object[] methodArguments) throws Exception {
+        return TraceIdUtil.getTraceId();
     }
 
     /**

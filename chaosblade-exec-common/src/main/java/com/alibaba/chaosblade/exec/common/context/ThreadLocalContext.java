@@ -19,12 +19,17 @@ public class ThreadLocalContext {
     }
 
     public Content get() {
-        return local.get();
+        Content content = local.get();
+        if (content == null) {
+            local.set(new ThreadLocalContext.Content());
+        }
+        return content;
     }
 
-    public static class Content{
-        private  StackTraceElement[] stackTraceElements;
+    public static class Content {
+        private StackTraceElement[] stackTraceElements;
         private Map<String, Map<String, String>> businessData;
+        private String traceId;
 
         public StackTraceElement[] getStackTraceElements() {
             return stackTraceElements;
@@ -38,8 +43,16 @@ public class ThreadLocalContext {
             return businessData;
         }
 
-        public void settValue(Map<String, Map<String, String>>  businessData) {
+        public void setBusinessData(Map<String, Map<String, String>> businessData) {
             this.businessData = businessData;
+        }
+
+        public String getTraceId() {
+            return traceId;
+        }
+
+        public void setTraceId(String traceId) {
+            this.traceId = traceId;
         }
     }
 }

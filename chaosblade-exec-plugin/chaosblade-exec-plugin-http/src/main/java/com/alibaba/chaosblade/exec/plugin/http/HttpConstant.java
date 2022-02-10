@@ -26,6 +26,7 @@ public class HttpConstant {
 
     public static final String REQUEST_ID_STACK = "c_request_id_stack";
     public static final String REQUEST_ID_BUSINESSPARAM = "c_request_id_busiParam";
+    public static final String REQUEST_ID_TRACE_ID = "c_request_id_traceId";
 
 
     public static final String REST_TARGET_NAME = "rest";

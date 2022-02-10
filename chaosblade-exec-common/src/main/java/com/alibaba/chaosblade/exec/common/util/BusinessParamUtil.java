@@ -73,23 +73,25 @@ public class BusinessParamUtil {
         return result;
     }
 
+
+
     private static String getValueFromSPI(BusinessParam businessParam, BusinessDataGetter dataGetter) {
         List<Object> objects = ManagerFactory.spiServiceManager().getServices(BusinessDataGetter.class.getName(), Thread.currentThread().getContextClassLoader());
         if (objects == null || objects.isEmpty()) {
             return null;
         }
+        String result = null;
         for (Object object : objects) {
-            String tmpValue = null;
             try {
-                tmpValue = ReflectUtil.invokeMethod(object, "get", new Object[]{businessParam.getKey()}, true);
+                result = ReflectUtil.invokeMethod(object, "get", new Object[]{businessParam.getKey()}, true);
             } catch (Exception e) {
                 LOGGER.warn("get business value from spi class error,class :{}", object.getClass().getName(), e);
             }
-            if (!StringUtils.isEmpty(tmpValue)) {
-                return tmpValue;
+            if (!StringUtils.isEmpty(result)) {
+                return result;
             }
         }
-        return null;
+        return result;
     }
 
     private static String getValueFromRpc(BusinessParam businessParam, BusinessDataGetter dataGetter) {

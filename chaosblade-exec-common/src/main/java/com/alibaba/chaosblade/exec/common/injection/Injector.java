@@ -30,6 +30,7 @@ import com.alibaba.chaosblade.exec.common.model.matcher.MatcherModel;
 import com.alibaba.chaosblade.exec.common.util.JsonUtil;
 import com.alibaba.chaosblade.exec.common.util.ModelUtil;
 import com.alibaba.chaosblade.exec.common.util.StringUtil;
+import com.alibaba.chaosblade.exec.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +67,12 @@ public class Injector {
                     LOGGER.info("Limited by: {}", JsonUtil.writer().writeValueAsString(model));
                     break;
                 }
-                LOGGER.info("Match rule: {}", JsonUtil.writer().writeValueAsString(model));
+                //log traceId
+                if (StringUtils.isBlank(enhancerModel.getTraceId())) {
+                    LOGGER.info("Match rule: {}", JsonUtil.writer().writeValueAsString(model));
+                } else {
+                    LOGGER.info("Match rule: traceid#{},{}", enhancerModel.getTraceId(), JsonUtil.writer().writeValueAsString(model));
+                }
                 enhancerModel.merge(model);
                 ModelSpec modelSpec = ManagerFactory.getModelSpecManager().getModelSpec(target);
                 ActionSpec actionSpec = modelSpec.getActionSpec(model.getActionName());

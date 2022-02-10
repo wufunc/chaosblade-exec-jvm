@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.alibaba.chaosblade.exec.common.constant.ModelConstant;
 import com.alibaba.chaosblade.exec.common.util.BusinessParamUtil;
+import com.alibaba.chaosblade.exec.common.util.TraceIdUtil;
 import com.alibaba.chaosblade.exec.spi.BusinessDataGetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +31,6 @@ public class NettyRequestSenderEnhancer extends BeforeEnhancer {
     @Override
     public EnhancerModel doBeforeAdvice(ClassLoader classLoader, String className, Object object, Method method,
                                         Object[] methodArguments) throws Exception {
-        if (!shouldAddCallPoint() && !shouldAddBusinessParam()) {
-            return null;
-        }
         if (methodArguments.length < 2) {
             LOGGER.warn("argument's length less than 2, can't find Request, className:{}, methodName:{}", className,
                     method.getName());
@@ -45,7 +43,11 @@ public class NettyRequestSenderEnhancer extends BeforeEnhancer {
             return null;
         }
         final Object headers = ReflectUtil.invokeMethod(request, "getHeaders");
-        String id;
+        //add traceid to global context
+        String id = String.valueOf(ID_GENERATOR.incrementAndGet());
+        ReflectUtil.invokeMethod(headers, "add", new String[]{HttpConstant.REQUEST_ID_TRACE_ID, id});
+        GlobalContext.getDefaultInstance().put(id, TraceIdUtil.getTraceId());
+
         if (shouldAddCallPoint()) {
             id = String.valueOf(ID_GENERATOR.incrementAndGet());
             ReflectUtil.invokeMethod(headers, "add", new String[]{HttpConstant.REQUEST_ID_STACK, id});

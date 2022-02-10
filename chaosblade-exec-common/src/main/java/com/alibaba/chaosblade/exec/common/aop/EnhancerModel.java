@@ -40,6 +40,7 @@ public class EnhancerModel {
     private Object[] methodArguments;
     private Object returnValue;
     private Map<String, CustomMatcher> customMatcher;
+    private String traceId;
 
     private TimeoutExecutor timeoutExecutor;
     private ThreadPoolFullExecutor threadPoolFullExecutor;
@@ -155,4 +156,11 @@ public class EnhancerModel {
        return this.customMatcher.get(key);
     }
 
+    public String getTraceId() {
+        return traceId;
+    }
+
+    public void setTraceId(String traceId) {
+        this.traceId = traceId;
+    }
 }

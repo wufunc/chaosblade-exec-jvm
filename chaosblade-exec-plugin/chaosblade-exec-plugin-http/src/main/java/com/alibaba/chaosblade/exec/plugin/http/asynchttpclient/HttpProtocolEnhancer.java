@@ -5,9 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.chaosblade.exec.common.constant.ModelConstant;
-import com.alibaba.chaosblade.exec.common.util.BusinessParamUtil;
 import com.alibaba.chaosblade.exec.plugin.http.HttpEnhancer;
-import com.alibaba.chaosblade.exec.spi.BusinessDataGetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,20 +35,13 @@ public class HttpProtocolEnhancer extends HttpEnhancer {
         if (headers == null) {
             return null;
         }
-        List<String> values = (List<String>) ReflectUtil.invokeMethod(headers, "get", new String[]{HttpConstant.REQUEST_ID_STACK});
+        List<String> values = ReflectUtil.invokeMethod(headers, "get", new String[]{HttpConstant.REQUEST_ID_STACK});
         if (values != null && !values.isEmpty()) {
             String id = values.get(0);
             StackTraceElement[] stackTrace = (StackTraceElement[]) GlobalContext.getDefaultInstance().remove(id);
-            ThreadLocalContext.Content content;
-            if (ThreadLocalContext.getInstance().get() == null) {
-                content = new ThreadLocalContext.Content();
-            } else {
-                content = ThreadLocalContext.getInstance().get();
-            }
-            content.setStackTraceElements(stackTrace);
-            ThreadLocalContext.getInstance().set(content);
+            ThreadLocalContext.getInstance().get().setStackTraceElements(stackTrace);
         } else {
-            LOGGER.warn("header not found, className:{}, methodName:{}", className, method.getName());
+            LOGGER.warn("stack header id not found, className:{}, methodName:{}", className, method.getName());
         }
         return null;
     }
@@ -60,24 +51,34 @@ public class HttpProtocolEnhancer extends HttpEnhancer {
         if (!shouldAddBusinessParam()) {
             return null;
         }
-        final Object headers = getHttpHeader(className, instance, method, methodArguments);
+        Object headers = getHttpHeader(className, instance, method, methodArguments);
         if (headers == null) {
             return null;
         }
-        List<String> values = (List<String>) ReflectUtil.invokeMethod(headers, "get", new String[]{HttpConstant.REQUEST_ID_BUSINESSPARAM});
+        List<String> values = ReflectUtil.invokeMethod(headers, "get", new String[]{HttpConstant.REQUEST_ID_BUSINESSPARAM});
         if (values != null && !values.isEmpty()) {
             String id = values.get(0);
             Map<String, Map<String, String>> busiParam = (Map<String, Map<String, String>>) GlobalContext.getDefaultInstance().remove(id);
-            ThreadLocalContext.Content content;
-            if (ThreadLocalContext.getInstance().get() == null) {
-                content = new ThreadLocalContext.Content();
-            } else {
-                content = ThreadLocalContext.getInstance().get();
-            }
-            content.settValue(busiParam);
-            ThreadLocalContext.getInstance().set(content);
+            ThreadLocalContext.getInstance().get().setBusinessData(busiParam);
         } else {
-            LOGGER.warn("header not found, className:{}, methodName:{}", className, method.getName());
+            LOGGER.warn("business params header id not found, className:{}, methodName:{}", className, method.getName());
+        }
+        return null;
+    }
+
+    @Override
+    protected String getTraceId(String className, Object object, Method method, Object[] methodArguments) throws Exception {
+        Object headers = getHttpHeader(className, object, method, methodArguments);
+        if (headers == null) {
+            return null;
+        }
+        List<String> values = ReflectUtil.invokeMethod(headers, "get", new String[]{HttpConstant.REQUEST_ID_BUSINESSPARAM});
+        if (values != null && !values.isEmpty()) {
+            String id = values.get(0);
+            String traceId = (String) GlobalContext.getDefaultInstance().remove(id);
+            ThreadLocalContext.getInstance().get().setTraceId(traceId);
+        } else {
+            LOGGER.warn("trace header id not found, className:{}, methodName:{}", className, method.getName());
         }
         return null;
     }

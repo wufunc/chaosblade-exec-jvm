@@ -36,16 +36,18 @@ public class AsyncHttpClientHandlerEnhancer extends HttpEnhancer {
         ThreadLocalContext.Content content = ThreadLocalContext.getInstance().get();
         enhancerModel.addMatcher(HttpConstant.ASYNC_HTTP_TARGET_NAME, "true");
         if (FlagUtil.hasFlag("http", HttpConstant.CALL_POINT_KEY)) {
-            enhancerModel.addCustomMatcher(HttpConstant.CALL_POINT_KEY, content.getStackTraceElements(), CallPointMatcher.getInstance()); }
+            enhancerModel.addCustomMatcher(HttpConstant.CALL_POINT_KEY, content.getStackTraceElements(), CallPointMatcher.getInstance());
+        }
     }
 
     @Override
     protected Map<String, Map<String, String>> getBusinessParams(String className, Object instance, Method method, Object[] methodArguments) throws Exception {
-        ThreadLocalContext.Content content = ThreadLocalContext.getInstance().get();
-        if (content == null) {
-            return null;
-        }
-        return content.getBusinessData();
+        return ThreadLocalContext.getInstance().get().getBusinessData();
+    }
+
+    @Override
+    protected String getTraceId(String className, Object object, Method method, Object[] methodArguments) throws Exception {
+        return ThreadLocalContext.getInstance().get().getTraceId();
     }
 
     @Override
@@ -74,6 +76,7 @@ public class AsyncHttpClientHandlerEnhancer extends HttpEnhancer {
         }
         return DEFAULT_TIMEOUT;
     }
+
     @Override
     protected TimeoutExecutor createTimeoutExecutor(ClassLoader classLoader, final long timeout, String className) {
         return new TimeoutExecutor() {

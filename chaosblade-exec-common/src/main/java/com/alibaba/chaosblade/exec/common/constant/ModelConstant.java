@@ -45,4 +45,9 @@ public interface ModelConstant {
      * the flag of buisness params
      */
     String BUSINESS_PARAMS = "b-params";
+
+    /*
+     * the flag of buisness params
+     */
+    String LOG_TRACE_ID = "log-trace-id";
 }
