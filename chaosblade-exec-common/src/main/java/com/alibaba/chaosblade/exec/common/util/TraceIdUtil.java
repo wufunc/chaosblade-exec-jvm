@@ -17,6 +17,7 @@ public class TraceIdUtil {
     public static String getTraceId() {
         List<Object> objects = ManagerFactory.spiServiceManager().getServices(TraceIdGetter.class.getName(), Thread.currentThread().getContextClassLoader());
         if (objects == null || objects.isEmpty()) {
+            LOGGER.debug("get traceId from spi objects null");
             return null;
         }
         String result = null;

@@ -72,7 +72,7 @@ public class HttpProtocolEnhancer extends HttpEnhancer {
         if (headers == null) {
             return null;
         }
-        List<String> values = ReflectUtil.invokeMethod(headers, "get", new String[]{HttpConstant.REQUEST_ID_BUSINESSPARAM});
+        List<String> values = ReflectUtil.invokeMethod(headers, "get", new String[]{HttpConstant.REQUEST_ID_TRACE_ID});
         if (values != null && !values.isEmpty()) {
             String id = values.get(0);
             String traceId = (String) GlobalContext.getDefaultInstance().remove(id);

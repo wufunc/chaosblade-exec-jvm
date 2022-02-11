@@ -5,8 +5,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.alibaba.chaosblade.exec.common.constant.ModelConstant;
-import com.alibaba.chaosblade.exec.common.util.BusinessParamUtil;
-import com.alibaba.chaosblade.exec.common.util.TraceIdUtil;
+import com.alibaba.chaosblade.exec.common.util.*;
 import com.alibaba.chaosblade.exec.spi.BusinessDataGetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +13,6 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.chaosblade.exec.common.aop.BeforeEnhancer;
 import com.alibaba.chaosblade.exec.common.aop.EnhancerModel;
 import com.alibaba.chaosblade.exec.common.context.GlobalContext;
-import com.alibaba.chaosblade.exec.common.util.FlagUtil;
-import com.alibaba.chaosblade.exec.common.util.ReflectUtil;
 import com.alibaba.chaosblade.exec.plugin.http.HttpConstant;
 import com.alibaba.chaosblade.exec.plugin.http.enhancer.InternalPointCut;
 
@@ -46,8 +43,10 @@ public class NettyRequestSenderEnhancer extends BeforeEnhancer {
         //add traceid to global context
         String id = String.valueOf(ID_GENERATOR.incrementAndGet());
         ReflectUtil.invokeMethod(headers, "add", new String[]{HttpConstant.REQUEST_ID_TRACE_ID, id});
-        GlobalContext.getDefaultInstance().put(id, TraceIdUtil.getTraceId());
-
+        String traceId = TraceIdUtil.getTraceId();
+        if (!StringUtils.isBlank(traceId)) {
+            GlobalContext.getDefaultInstance().put(id, traceId);
+        }
         if (shouldAddCallPoint()) {
             id = String.valueOf(ID_GENERATOR.incrementAndGet());
             ReflectUtil.invokeMethod(headers, "add", new String[]{HttpConstant.REQUEST_ID_STACK, id});
