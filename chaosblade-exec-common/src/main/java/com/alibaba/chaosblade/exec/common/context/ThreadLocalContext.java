@@ -21,7 +21,8 @@ public class ThreadLocalContext {
     public Content get() {
         Content content = local.get();
         if (content == null) {
-            local.set(new ThreadLocalContext.Content());
+            content = new ThreadLocalContext.Content();
+            local.set(content);
         }
         return content;
     }
