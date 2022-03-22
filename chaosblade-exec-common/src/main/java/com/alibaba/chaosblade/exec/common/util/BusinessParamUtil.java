@@ -74,10 +74,10 @@ public class BusinessParamUtil {
     }
 
 
+
     private static String getValueFromSPI(BusinessParam businessParam, BusinessDataGetter dataGetter) {
         List<Object> objects = ManagerFactory.spiServiceManager().getServices(BusinessDataGetter.class.getName(), Thread.currentThread().getContextClassLoader());
         if (objects == null || objects.isEmpty()) {
-            LOGGER.debug("get business value from ,spi objects null");
             return null;
         }
         String result = null;
@@ -90,13 +90,6 @@ public class BusinessParamUtil {
             if (!StringUtils.isEmpty(result)) {
                 return result;
             }
-        }
-        if (StringUtils.isEmpty(result)) {
-            LOGGER.debug("get business value from spi, is null ");
-        }
-        result = getValueFromRpc(businessParam, dataGetter);
-        if (StringUtils.isEmpty(result)) {
-            LOGGER.debug("get business value from rpc, is null ");
         }
         return result;
     }
