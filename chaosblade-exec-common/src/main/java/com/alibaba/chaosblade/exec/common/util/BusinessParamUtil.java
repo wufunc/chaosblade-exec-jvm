@@ -23,6 +23,7 @@ public class BusinessParamUtil {
         Map<String, List<BusinessParam>> paramsMap = new HashMap<String, List<BusinessParam>>();
         List<StatusMetric> statusMetrics = ManagerFactory.getStatusManager().getExpByTarget(
                 target);
+        LOGGER.debug("get business value statusMetrics size:{}", statusMetrics.size());
         for (StatusMetric statusMetric : statusMetrics) {
             Model model = statusMetric.getModel();
             String flag = model.getMatcher().get(ModelConstant.BUSINESS_PARAMS);
@@ -55,14 +56,18 @@ public class BusinessParamUtil {
 
     public static Map<String, Map<String, String>> getAndParse(String target, BusinessDataGetter dataGetter) throws Exception {
         Map<String, List<BusinessParam>> businessParams = getAndParse(target);
+        LOGGER.debug("get business value businessParams size:{}", businessParams.size());
         Map<String, Map<String, String>> result = new HashMap<String, Map<String, String>>();
         for (Map.Entry<String, List<BusinessParam>> entry : businessParams.entrySet()) {
             result.put(entry.getKey(), new HashMap<String, String>());
+            LOGGER.debug("get business value entry value size:{}", entry.getValue().size());
             for (BusinessParam businessParam : entry.getValue()) {
                 String value = "";
                 if (businessParam.getMode().equals(mode.rpc.getValue())) {
+                    LOGGER.debug("get business value from rpc");
                     value = getValueFromRpc(businessParam, dataGetter);
                 } else {
+                    LOGGER.debug("get business value from spi");
                     value = getValueFromSPI(businessParam, dataGetter);
                 }
                 if (!StringUtils.isEmpty(value)) {
