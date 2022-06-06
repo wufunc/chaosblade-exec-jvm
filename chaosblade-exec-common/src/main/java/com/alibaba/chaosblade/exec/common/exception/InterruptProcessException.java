@@ -30,12 +30,12 @@ public class InterruptProcessException extends Exception {
     }
 
     public static InterruptProcessException throwReturnImmediately(final Object object)
-        throws InterruptProcessException {
+            throws InterruptProcessException {
         throw new InterruptProcessException(State.RETURN_IMMEDIATELY, object);
     }
 
     public static InterruptProcessException throwThrowsImmediately(final Throwable throwable)
-        throws InterruptProcessException {
+            throws InterruptProcessException {
         throw new InterruptProcessException(State.THROWS_IMMEDIATELY, throwable);
     }
 

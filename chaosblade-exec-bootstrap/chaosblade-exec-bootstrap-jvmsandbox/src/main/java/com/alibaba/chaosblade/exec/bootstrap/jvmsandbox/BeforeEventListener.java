@@ -17,7 +17,9 @@
 package com.alibaba.chaosblade.exec.bootstrap.jvmsandbox;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import com.alibaba.chaosblade.exec.common.aop.Plugin;
 import com.alibaba.chaosblade.exec.common.exception.InterruptProcessException;
@@ -46,7 +48,7 @@ public class BeforeEventListener implements EventListener {
     @Override
     public void onEvent(Event event) throws Throwable {
         if (event instanceof BeforeEvent) {
-            handleEvent((BeforeEvent)event);
+            handleEvent((BeforeEvent) event);
         }
     }
 
@@ -68,21 +70,33 @@ public class BeforeEventListener implements EventListener {
             method = ReflectUtil.getMethod(clazz, event.javaMethodDesc, event.javaMethodName);
         } catch (NoSuchMethodException e) {
             LOGGER.warn("get method by reflection exception. class: {}, method: {}, arguments: {}, desc: {}", event
-                .javaClassName, event.javaMethodName, Arrays.toString(event.argumentArray), event.javaMethodDesc, e);
+                    .javaClassName, event.javaMethodName, Arrays.toString(event.argumentArray), event.javaMethodDesc, e);
             return;
         }
         try {
             // do enhancer
             plugin.getEnhancer().beforeAdvice(plugin.getModelSpec().getTarget(), event.javaClassLoader,
-                event.javaClassName, event.target, method, event.argumentArray);
+                    event.javaClassName, event.target, method, event.argumentArray);
         } catch (Exception e) {
             // handle return or throw exception
             if (e instanceof InterruptProcessException) {
-                InterruptProcessException exception = (InterruptProcessException)e;
+                InterruptProcessException exception = (InterruptProcessException) e;
                 if (exception.getState() == State.RETURN_IMMEDIATELY) {
                     ProcessControlException.throwReturnImmediately(exception.getResponse());
                 } else if (exception.getState() == State.THROWS_IMMEDIATELY) {
-                    ProcessControlException.throwThrowsImmediately((Throwable)exception.getResponse());
+                    try {
+                        ProcessControlException.throwThrowsImmediately((Throwable) exception.getResponse());
+                    } catch (Exception exp) {
+                        StackTraceElement[] elements = exp.getStackTrace();
+                        List<StackTraceElement> list = new ArrayList();
+                        for (int i = 0; i < elements.length; i++) {
+                            if (!elements[i].getClassName().contains("com.alibaba.chaosblade")) {
+                                list.add(elements[i]);
+                            }
+                        }
+                        exp.setStackTrace(list.toArray(new StackTraceElement[list.size()]));
+                        throw exp;
+                    }
                 }
             } else {
                 throw e;
