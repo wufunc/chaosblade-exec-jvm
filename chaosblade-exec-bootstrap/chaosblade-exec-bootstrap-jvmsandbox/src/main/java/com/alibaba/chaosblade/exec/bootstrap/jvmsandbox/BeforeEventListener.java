@@ -84,19 +84,7 @@ public class BeforeEventListener implements EventListener {
                 if (exception.getState() == State.RETURN_IMMEDIATELY) {
                     ProcessControlException.throwReturnImmediately(exception.getResponse());
                 } else if (exception.getState() == State.THROWS_IMMEDIATELY) {
-                    try {
-                        ProcessControlException.throwThrowsImmediately((Throwable) exception.getResponse());
-                    } catch (Exception exp) {
-                        StackTraceElement[] elements = exp.getStackTrace();
-                        List<StackTraceElement> list = new ArrayList();
-                        for (int i = 0; i < elements.length; i++) {
-                            if (!elements[i].getClassName().contains("com.alibaba.chaosblade")) {
-                                list.add(elements[i]);
-                            }
-                        }
-                        exp.setStackTrace(list.toArray(new StackTraceElement[list.size()]));
-                        throw exp;
-                    }
+                    ProcessControlException.throwThrowsImmediately((Throwable) exception.getResponse());
                 }
             } else {
                 throw e;

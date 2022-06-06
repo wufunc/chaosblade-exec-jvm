@@ -25,6 +25,8 @@ import com.alibaba.chaosblade.exec.common.model.FlagSpec;
 import com.alibaba.chaosblade.exec.common.util.StringUtil;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Changjun Xiao
@@ -55,12 +57,20 @@ public class DefaultThrowExceptionExecutor implements ThrowExceptionExecutor {
         }
         if (enhancerModel.getAction().equals(THROW_CUSTOM_EXCEPTION)) {
             exception = throwCustomException(enhancerModel.getClassLoader(), enhancerModel.getActionFlag(exceptionFlag
-                .getName()), exceptionMessage);
+                    .getName()), exceptionMessage);
         } else if (enhancerModel.getAction().equals(THROW_DECLARED_EXCEPTION)) {
             exception = throwDeclaredException(enhancerModel.getClassLoader(), enhancerModel.getMethod(),
-                exceptionMessage);
+                    exceptionMessage);
         }
         if (exception != null) {
+            StackTraceElement[] elements = exception.getStackTrace();
+            List<StackTraceElement> list = new ArrayList();
+            for (int i = 0; i < elements.length; i++) {
+                if (!elements[i].getClassName().contains("com.alibaba.chaosblade")) {
+                    list.add(elements[i]);
+                }
+            }
+            exception.setStackTrace(list.toArray(new StackTraceElement[list.size()]));
             InterruptProcessException.throwThrowsImmediately(exception);
         }
     }
@@ -79,7 +89,7 @@ public class DefaultThrowExceptionExecutor implements ThrowExceptionExecutor {
             return instantiateException(clazz, exceptionMessage);
         } catch (Throwable e) {
             return new RuntimeException(
-                "mock custom exception: " + exception + " occurs error", e);
+                    "mock custom exception: " + exception + " occurs error", e);
         }
     }
 
@@ -114,7 +124,7 @@ public class DefaultThrowExceptionExecutor implements ThrowExceptionExecutor {
      * @throws InvocationTargetException
      * @throws InstantiationException
      */
-    private Exception instantiateException (Class exceptionClass, String exceptionMessage) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+    private Exception instantiateException(Class exceptionClass, String exceptionMessage) throws IllegalAccessException, InvocationTargetException, InstantiationException {
         if (Exception.class.isAssignableFrom(exceptionClass)) {
             Constructor<?>[] constructors = exceptionClass.getConstructors();
             //cache default constructor, if any
